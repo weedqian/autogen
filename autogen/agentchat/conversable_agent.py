@@ -37,6 +37,8 @@ from .agent import Agent, LLMAgent
 from .chat import ChatResult, a_initiate_chats, initiate_chats
 from .utils import consolidate_chat_info, gather_usage_summary
 
+from promptflow.tracing import trace, TraceType
+
 __all__ = ("ConversableAgent",)
 
 logger = logging.getLogger(__name__)
@@ -1285,6 +1287,7 @@ class ConversableAgent(LLMAgent):
                     flush=True,
                 )
 
+    @trace(entity="self.name")
     def generate_oai_reply(
         self,
         messages: Optional[List[Dict]] = None,
@@ -1875,6 +1878,7 @@ class ConversableAgent(LLMAgent):
 
         return False, None
 
+    @trace(entity="self.name")
     def generate_reply(
         self,
         messages: Optional[List[Dict[str, Any]]] = None,

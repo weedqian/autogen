@@ -13,6 +13,8 @@ from ..runtime_logging import log_new_agent, logging_enabled
 from .agent import Agent
 from .conversable_agent import ConversableAgent
 
+from promptflow.tracing import trace
+
 logger = logging.getLogger(__name__)
 
 
@@ -458,6 +460,11 @@ class GroupChat:
             ]
         return selected_agent, graph_eligible_agents, select_speaker_messages
 
+    @staticmethod
+    def get_trace_entity(group_chat: GroupChat):
+        return group_chat.admin_name
+
+    @trace(entity=GroupChat.get_trace_entity)
     def select_speaker(self, last_speaker: Agent, selector: ConversableAgent) -> Agent:
         """Select the next speaker."""
         selected_agent, agents, messages = self._prepare_and_select_agents(last_speaker)
@@ -624,6 +631,7 @@ class GroupChatManager(ConversableAgent):
             if (recipient != agent or prepare_recipient) and isinstance(agent, ConversableAgent):
                 agent._prepare_chat(self, clear_history, False, reply_at_receive)
 
+    @trace(entity="self.name")
     def run_chat(
         self,
         messages: Optional[List[Dict]] = None,
